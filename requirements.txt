@@ -25,3 +25,9 @@ requests>=2.31.0
 
 # Optional but recommended
 xgboost>=2.0.0  # Optional - falls back to GradientBoosting if not available
+
+# Model monitoring
+evidently>=0.4.0  # For model monitoring, drift detection, performance tracking
+
+# SSL/TensorFlow compatibility (fixes X509_V_FLAG_NOTIFY_POLICY error with keras/tensorflow)
+pyOpenSSL>=24.0  # Required for compatibility with cryptography>=45 and TensorFlow

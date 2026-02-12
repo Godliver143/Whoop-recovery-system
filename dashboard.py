@@ -44,8 +44,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# API URL
-API_URL = st.sidebar.text_input("API URL", value="http://localhost:8000", help="Enter the API server URL")
+# API URL Configuration
+st.sidebar.markdown("### 🔌 API Configuration")
+API_URL = st.sidebar.text_input(
+    "API URL", 
+    value="http://localhost:8000", 
+    help="Enter the API server URL (default: http://localhost:8000)"
+)
+
+# Check API connection
+api_connected = False
+api_error_msg = ""
 
 # Title
 st.markdown('<h1 class="main-header">💪 Whoop Recovery Prediction System</h1>', unsafe_allow_html=True)
@@ -74,14 +83,61 @@ if page == "🏠 Home":
     """)
     
     # API Health Check
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 📡 API Status")
+    
+    api_connected = False
+    api_error_msg = ""
+    
     try:
         response = requests.get(f"{API_URL}/health", timeout=5)
         if response.status_code == 200:
-            st.success("✅ API is connected and healthy")
+            st.sidebar.success("✅ API Connected")
+            api_connected = True
         else:
-            st.warning("⚠️ API returned an error")
-    except:
-        st.error("❌ Cannot connect to API. Make sure the API server is running.")
+            st.sidebar.warning(f"⚠️ API Error: {response.status_code}")
+            api_error_msg = f"API returned status code {response.status_code}"
+    except requests.exceptions.ConnectionError:
+        st.sidebar.error("❌ Connection Failed")
+        api_error_msg = "Cannot connect to API server"
+    except requests.exceptions.Timeout:
+        st.sidebar.error("❌ Connection Timeout")
+        api_error_msg = "API server did not respond in time"
+    except Exception as e:
+        st.sidebar.error("❌ Connection Error")
+        api_error_msg = str(e)
+    
+    if not api_connected:
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("### 🚀 Start API Server")
+        st.sidebar.code("""
+# In a NEW terminal, run:
+uvicorn api:app --reload
+
+# Or:
+python api.py
+        """)
+        st.sidebar.markdown("API runs at `http://localhost:8000`. Start it before using the dashboard.")
+    
+    # Main content area
+    if not api_connected:
+        st.warning(f"⚠️ **API Connection Issue**: {api_error_msg}")
+        st.info("""
+        **To use the dashboard:**
+        
+        1. **Start the API server** in a separate terminal:
+           ```bash
+           python api.py
+           ```
+        
+        2. **Wait for** the message "✅ All models loaded successfully"
+        
+        3. **Refresh** this page or check the API status in the sidebar
+        
+        4. The API should be running at: `http://localhost:8000`
+        
+        **API Documentation**: Once running, visit `http://localhost:8000/docs` for interactive API docs.
+        """)
 
 # Recovery Forecast Page
 elif page == "📊 Recovery Forecast":
@@ -158,6 +214,17 @@ elif page == "📊 Recovery Forecast":
         submitted = st.form_submit_button("🔮 Predict Recovery")
     
     if submitted:
+        # Check API connection first
+        try:
+            health_check = requests.get(f"{API_URL}/health", timeout=5)
+            if health_check.status_code != 200:
+                st.error("⚠️ API server is not responding. Please start the API server first.")
+                st.stop()
+        except:
+            st.error("❌ Cannot connect to API server. Please start the API server first.")
+            st.info("Run `python api.py` in a terminal to start the API server.")
+            st.stop()
+        
         try:
             # Prepare request
             request_data = {
@@ -167,7 +234,8 @@ elif page == "📊 Recovery Forecast":
             }
             
             # Call API
-            response = requests.post(f"{API_URL}/predict", json=request_data, timeout=30)
+            with st.spinner("🔄 Making prediction..."):
+                response = requests.post(f"{API_URL}/predict", json=request_data, timeout=30)
             
             if response.status_code == 200:
                 result = response.json()
@@ -245,6 +313,17 @@ elif page == "💡 Training Recommendations":
         """)
     
     if st.button("Get Recommendations"):
+        # Check API connection first
+        try:
+            health_check = requests.get(f"{API_URL}/health", timeout=5)
+            if health_check.status_code != 200:
+                st.error("⚠️ API server is not responding. Please start the API server first.")
+                st.stop()
+        except:
+            st.error("❌ Cannot connect to API server. Please start the API server first.")
+            st.info("Run `python api.py` in a terminal to start the API server.")
+            st.stop()
+        
         try:
             request_data = {
                 "user_id": user_id,
@@ -252,7 +331,8 @@ elif page == "💡 Training Recommendations":
                 "target_recovery_score": target_recovery
             }
             
-            response = requests.post(f"{API_URL}/recommend", json=request_data, timeout=10)
+            with st.spinner("🔄 Getting recommendations..."):
+                response = requests.post(f"{API_URL}/recommend", json=request_data, timeout=10)
             
             if response.status_code == 200:
                 result = response.json()
@@ -306,6 +386,17 @@ elif page == "🚨 Anomaly Detection":
         day_strain = st.number_input("Day Strain", min_value=0.0, max_value=21.0, value=10.0)
     
     if st.button("🔍 Detect Anomalies"):
+        # Check API connection first
+        try:
+            health_check = requests.get(f"{API_URL}/health", timeout=5)
+            if health_check.status_code != 200:
+                st.error("⚠️ API server is not responding. Please start the API server first.")
+                st.stop()
+        except:
+            st.error("❌ Cannot connect to API server. Please start the API server first.")
+            st.info("Run `python api.py` in a terminal to start the API server.")
+            st.stop()
+        
         try:
             request_data = {
                 "hrv": hrv,
@@ -318,7 +409,8 @@ elif page == "🚨 Anomaly Detection":
                 "day_strain": day_strain
             }
             
-            response = requests.post(f"{API_URL}/detect_anomaly", json=request_data, timeout=10)
+            with st.spinner("🔍 Analyzing health metrics..."):
+                response = requests.post(f"{API_URL}/detect_anomaly", json=request_data, timeout=10)
             
             if response.status_code == 200:
                 result = response.json()
@@ -386,7 +478,11 @@ elif page == "📈 Analytics Dashboard":
                     fig = go.Figure(data=[go.Pie(
                         labels=['Green Zone', 'Yellow Zone', 'Red Zone'],
                         values=[green, yellow, red],
-                        hole=0.4
+                        hole=0.4,
+                        marker=dict(
+                            colors=['#2ecc71', '#f1c40f', '#e74c3c'],  # Green, Yellow, Red
+                            line=dict(color='#FFFFFF', width=2)
+                        )
                     )])
                     fig.update_layout(title="Recovery Zone Distribution")
                     st.plotly_chart(fig, use_container_width=True)
