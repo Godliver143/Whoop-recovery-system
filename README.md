@@ -2,7 +2,7 @@
 
 A comprehensive AI-powered recovery forecasting system using machine learning to predict athlete recovery scores and provide personalized training recommendations.
 
-## 🚀 Features
+## Features
 
 - **Multi-Day Recovery Forecasting**: Predict recovery scores 1-7 days ahead using LSTM/GRU models
 - **Personalized Models**: User-specific recovery predictions with transfer learning
@@ -12,7 +12,7 @@ A comprehensive AI-powered recovery forecasting system using machine learning to
 - **Interactive Dashboard**: Streamlit web interface for visualization and interaction
 - **REST API**: FastAPI server for programmatic access
 
-## 📋 Requirements
+## Requirements
 
 See `requirements.txt` for full list of dependencies.
 
@@ -25,7 +25,7 @@ Key packages:
 - Plotly
 - Pandas, NumPy
 
-## 🛠️ Installation
+##  Installation
 
 1. Clone the repository:
 ```bash
@@ -44,7 +44,7 @@ jupyter notebook "Whoop model development.ipynb"
 ```
 Run all cells to train and save models to `saved_models/` directory.
 
-## 🏃 Running Locally
+## Running Locally
 
 ### Start the API Server:
 ```bash
@@ -59,7 +59,7 @@ streamlit run dashboard.py
 ```
 Dashboard will open at `http://localhost:8501`
 
-## 📊 Project Structure
+## Project Structure
 
 ```
 .
@@ -80,7 +80,7 @@ Dashboard will open at `http://localhost:8501`
     └── metadata.json
 ```
 
-## 🌐 Deployment
+## Deployment
 
 ### Streamlit Community Cloud
 
@@ -106,7 +106,7 @@ The API can be deployed separately to:
 
 See `README_DEPLOYMENT.md` for detailed deployment instructions.
 
-## 📖 Usage
+## Usage
 
 ### API Endpoints
 
@@ -128,28 +128,28 @@ response = requests.post("http://localhost:8000/predict", json={
 })
 ```
 
-## 📈 Model Performance
+## Model Performance
 
 - **LSTM**: MAE ~12.17, RMSE ~15.13
 - **GRU**: MAE ~12.32, RMSE ~15.29
 - **Ensemble**: Improved accuracy combining all models
 
-## 🎯 Use Cases
+## Use Cases
 
 - Athlete recovery monitoring
 - Training load optimization
 - Health anomaly detection
 - Personalized fitness recommendations
 
-## 📝 License
+## License
 
 This project is for educational purposes.
 
-## 👤 Author
+## Author
 
-AI Systems and Technology - Final Term Project
+Godliver Alangyam
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Whoop fitness dataset
 - TensorFlow/Keras
